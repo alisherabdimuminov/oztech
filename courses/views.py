@@ -20,7 +20,10 @@ from .serializers import (
 
 @decorators.api_view(http_method_names=["GET"])
 def get_courses_list(request: HttpRequest):
+    subject_pk = request.GET.get("subject", 0)
     courses_obj = Course.objects.all()
+    if subject_pk != 0:
+        courses_obj = courses_obj.filter(subject_id=subject_pk)
     courses = CoursesGETSerializer(courses_obj, many=True)
     return Response({
         "status": "success",
