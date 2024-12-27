@@ -8,11 +8,8 @@ from rest_framework.response import Response
 from users.models import User
 
 from .models import (
-    Answer,
     Course,
     Lesson,
-    Question,
-    Quiz,
     Subject,
     Module,
     Rating,
