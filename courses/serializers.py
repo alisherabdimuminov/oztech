@@ -1,12 +1,16 @@
 from rest_framework import serializers
 
 from users.models import User
+from users.serializers import UserSerializer
 from .models import (
     Answer,
     Course,
+    CourseRating,
     Lesson,
+    Module,
     Question,
     Quiz,
+    Rating,
     Subject,
 )
 
@@ -49,40 +53,144 @@ class QuizGETSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "questions", )
 
 
-class CoursesGETSerializer(serializers.ModelSerializer):
-    user = AuthorSerializer(User, many=False)
-    subject = SubjectSerializer(Subject, many=False)
-    created = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
+class ModuleRequiredSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Course
-        fields = ("id", "name", "user", "subject", "description", "image", "price", "count_students", "created", )
+        model = Module
+        fields = ("id", "name", )
 
 
 class LessonGETLittleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
-        fields = ("id", "name", "type", )
-
-
-class CourseGETSerializer(serializers.ModelSerializer):
-    user = AuthorSerializer(User, many=False)
-    subject = SubjectSerializer(Subject, many=False)
-    created = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
-    lessons = serializers.SerializerMethodField("lessons_func")
-
-    def lessons_func(self, obj):
-        lessons_obj = Lesson.objects.filter(course=obj)
-        lessons = LessonGETLittleSerializer(lessons_obj, many=True)
-        return lessons.data
-
-    class Meta:
-        model = Course
-        fields = ("id", "name", "user", "subject", "description", "image", "price", "count_students", "lessons", "created", )
+        fields = ("id", "name", "type", "duration", )
 
 
 class LessonGETSerializer(serializers.ModelSerializer):
-    created = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
-    quiz = QuizGETSerializer(Quiz, many=False)
+    requires_context = True
+
+    is_open = serializers.SerializerMethodField("check_open")
+    quiz = QuizGETSerializer(Quiz.objects.all(), many=False)
+    previous = LessonGETLittleSerializer(Lesson.objects.all(), many=False)
+    next = LessonGETLittleSerializer(Lesson.objects.all(), many=False)
+    
+    def check_open(self, obj):
+        request = self.context.get("request")
+        if request:
+            if (obj.has_previous()):
+                if request.user in obj.previous.finishers.all():
+                    return True
+                else:
+                    return False
+            else:
+                return True
+        return True
+    
     class Meta:
         model = Lesson
-        fields = ("id", "name", "course", "type", "quiz", "duration", "video", "source", "previous", "next", "created", )
+        fields = ("id", "name", "type", "video", "duration", "resource", "quiz", "previous", "next", "is_open", "created",)
+
+
+class ModuleGETSerializer(serializers.ModelSerializer):
+    requires_context = True
+
+    is_open = serializers.SerializerMethodField("is_open_func")
+    required = ModuleRequiredSerializer(Module.objects.all(), many=False)
+    lessons = LessonGETLittleSerializer(Lesson.objects.all(), many=True)
+
+    def is_open_func(self, obj):
+        request = self.context.get("request")
+        if request:
+            if request.user in obj.students.all():
+                return True
+            return False
+        return False
+    
+
+    class Meta:
+        model = Module
+        fields = ("id", "name", "required", "video_length", "count_students", "count_finishers", "count_lessons", "students", "lessons", "is_open")
+
+
+class CoursesGETSerializer(serializers.ModelSerializer):
+    requires_context = True
+
+    is_open = serializers.SerializerMethodField("is_open_func")
+    percentage = serializers.SerializerMethodField("percentage_func")
+    user = AuthorSerializer(User, many=False)
+    subject = SubjectSerializer(Subject, many=False)
+    created = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
+
+    def is_open_func(self, obj):
+        request = self.context.get("request")
+        if request:
+            if request.user in obj.students.all():
+                return True
+            return False
+        return False
+
+    def percentage_func(self, obj):
+        request = self.context.get("request")
+        user = request.user
+        count = 0
+        for module in obj.modules():
+            count += module.finished_lessons(user=user)
+        if obj.count_lessons() == 0:
+            return 0
+        return count * 100 / obj.count_lessons()
+
+    class Meta:
+        model = Course
+        fields = ("id", "name", "user", "subject", "description", "image", "price", "percentage", "length", "count_modules", "count_lessons", "count_students", "is_open", "created", )
+
+
+class CourseGETSerializer(serializers.ModelSerializer):
+    requires_context = True
+
+    is_open = serializers.SerializerMethodField("is_open_func")
+    user = AuthorSerializer(User, many=False)
+    subject = SubjectSerializer(Subject, many=False)
+    percentage = serializers.SerializerMethodField("percentage_func")
+    created = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
+    modules = serializers.SerializerMethodField("modules_func")
+
+    def is_open_func(self, obj):
+        request = self.context.get("request")
+        if request:
+            if request.user in obj.students.all():
+                return True
+            return False
+        return False
+
+    def modules_func(self, obj):
+        modules_obj = Module.objects.filter(course=obj)
+        modules = ModuleRequiredSerializer(modules_obj, many=True)
+        return modules.data
+    
+    def percentage_func(self, obj):
+        request = self.context.get("request")
+        user = request.user
+        count = 0
+        for module in obj.modules():
+            count += module.finished_lessons(user=user)
+        if obj.count_lessons() == 0:
+            return 0
+        return count * 100 / obj.count_lessons()
+
+    class Meta:
+        model = Course
+        fields = ("id", "name", "user", "subject", "description", "image", "price", "percentage", "length", "count_modules", "count_lessons", "count_students",  "modules", "is_open", "created", )
+
+
+class RatingSerializer(serializers.ModelSerializer):
+    course = CourseGETSerializer(Course, many=False)
+    class Meta:
+        model = Rating
+        fields = ("course", "module", "lesson", "score",)
+
+
+class CourseRatingSerializer(serializers.ModelSerializer):
+    course = CourseGETSerializer(Course, many=False)
+    author = UserSerializer(User, many=False)
+    class Meta:
+        model = CourseRating
+        fields = ("author", "course", "score", )

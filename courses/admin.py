@@ -5,6 +5,7 @@ from .models import (
     Answer,
     Course,
     Lesson,
+    Module,
     Question,
     Quiz,
     Subject,
@@ -20,9 +21,20 @@ class LessonTabularInline(uadmin.TabularInline):
     max_num = 1
 
 
+class ModuleTabularInline(uadmin.TabularInline):
+    model = Module
+    max_num = 1
+
+
 @admin.register(Course)
 class CourseModelAdmin(uadmin.ModelAdmin):
     list_display = ["name", "price", "count_students", "created", ]
+    inlines = [ModuleTabularInline]
+
+
+@admin.register(Module)
+class ModuleModelAdmin(uadmin.ModelAdmin):
+    list_display = ["name", "course", "required", ]
     inlines = [LessonTabularInline]
 
 

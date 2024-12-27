@@ -70,18 +70,67 @@ class Course(models.Model):
     def __str__(self):
         return self.name
     
+    def modules(self):
+        return Module.objects.filter(course=self)
+    
     def count_students(self):
         return self.students.count()
     
+    def count_modules(self):
+        return Module.objects.filter(course=self).count()
+    
+    def count_lessons(self):
+        return Lesson.objects.filter(module__course=self).count()
+
+    def length(self):
+        return Lesson.objects.filter(module__course=self).aggregate(models.Sum("duration")).get("duration__sum") or 0
+
+
+class Module(models.Model):
+    name = models.CharField(max_length=500)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    required = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True)
+    students = models.ManyToManyField(User, related_name="module_students", null=True, blank=True)
+    finishers = models.ManyToManyField(User, related_name="module_finishers", null=True, blank=True)
+
+    def __str__(self) -> str:
+        return self.name
+    
+    def finished_lessons(self, user: User):
+        lessons = Lesson.objects.filter(module=self)
+        count = 0
+        for lesson in lessons:
+            if user in lesson.finishers.all():
+                count += 1
+        return count
+    
+    def count_students(self) -> int:
+        return self.students.count()
+    
+    def count_finishers(self) -> int:
+        return self.finishers.count()
+    
+    def count_lessons(self) -> int:
+        return Lesson.objects.filter(module=self).count()
+    
+    def lessons(self):
+        return Lesson.objects.filter(module=self)
+    
+    def count_quizzes(self):
+        return Lesson.objects.filter(type="quiz").count()
+    
+    def video_length(self) -> int:
+        return Lesson.objects.filter(module=self).aggregate(duration=models.Sum("duration")).get("duration") or 0
+
 
 class Lesson(models.Model):
     name = models.CharField(max_length=100)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    module = models.ForeignKey(Module, on_delete=models.CASCADE)
     type = models.CharField(max_length=100, choices=LESSON_TYPE)
     quiz = models.ForeignKey(Quiz, on_delete=models.SET_NULL, null=True, blank=True)
     duration = models.IntegerField(default=60)
     video = models.URLField(null=True, blank=True)
-    source = models.FileField(upload_to="files/lessons", null=True, blank=True)
+    resource = models.FileField(upload_to="files/lessons", null=True, blank=True)
     previous = models.ForeignKey("self", related_name="previous_lesson", on_delete=models.SET_NULL, null=True, blank=True)
     next = models.ForeignKey("self", related_name="next_lesson", on_delete=models.SET_NULL, null=True, blank=True)
     finishers = models.ManyToManyField(User, related_name="lesson_finishers", null=True, blank=True)
@@ -110,4 +159,24 @@ class Lesson(models.Model):
         self.finishers.add(user)
 
 
+class Rating(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    score = models.IntegerField()
+    percent = models.IntegerField()
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return str(self.score)
+
+class CourseRating(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    score = models.IntegerField()
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.score)

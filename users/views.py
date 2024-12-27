@@ -78,6 +78,7 @@ def signup(request: HttpRequest):
         "data": None
     })
 
+
 @decorators.api_view(http_method_names=["POST"])
 def edit_profile(request: HttpRequest, pk: int):
     user_obj = User.objects.get(pk=pk)
