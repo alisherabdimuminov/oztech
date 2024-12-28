@@ -1,5 +1,7 @@
 from django.http import HttpRequest
 from rest_framework import decorators
+from rest_framework import permissions
+from rest_framework import authentication
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
@@ -81,6 +83,36 @@ def signup(request: HttpRequest):
 
 
 @decorators.api_view(http_method_names=["POST"])
+@decorators.permission_classes(permission_classes=[permissions.IsAuthenticated])
+@decorators.authentication_classes(authentication_classes=[authentication.TokenAuthentication])
+def profile(request: HttpRequest):
+    user: User = request.user
+
+    image = user.image
+    
+    if image:
+        image = request.build_absolute_uri(image.url)
+    else:
+        image = None
+
+    return Response({
+        "status": "success",
+        "code": "200",
+        "data": {
+            "phone": user.username,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "middle_name": user.middle_name,
+            "city": user.city,
+            "town": user.town,
+            "image": image
+        }
+    })
+
+
+@decorators.api_view(http_method_names=["POST"])
+@decorators.permission_classes(permission_classes=[permissions.IsAuthenticated])
+@decorators.authentication_classes(authentication_classes=[authentication.TokenAuthentication])
 def edit_profile(request: HttpRequest, pk: int):
     user_obj = User.objects.get(pk=pk)
     user = UserSerializer(user_obj, data=request.data)
