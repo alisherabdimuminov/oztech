@@ -19,6 +19,6 @@ class UserModelAdmin(UserAdmin, uadmin.ModelAdmin):
     )
     add_fieldsets = (
         ("Yangi foydalanuvchi qo'shish", {
-            "fields": ("username", "password1", "password2", "first_name", "last_name", "last_name", "middle_name", "city", "town", )
+            "fields": ("username", "password1", "password2", "first_name", "last_name", "middle_name", "city", "town", )
         }), 
     )
