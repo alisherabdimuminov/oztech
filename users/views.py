@@ -44,6 +44,7 @@ def login(request: HttpRequest):
 
 @decorators.api_view(http_method_names=["POST"])
 def signup(request: HttpRequest):
+    print(request.method)
     username = request.data.get("phone")
     first_name = request.data.get("first_name")
     last_name = request.data.get("last_name")
