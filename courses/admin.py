@@ -16,14 +16,14 @@ class AnswerTabulrInline(uadmin.TabularInline):
     model = Answer
 
 
-class LessonTabularInline(uadmin.TabularInline):
+class LessonTabularInline(uadmin.StackedInline):
     model = Lesson
-    max_num = 1
+    extra = 0
 
 
 class ModuleTabularInline(uadmin.TabularInline):
     model = Module
-    max_num = 1
+    # max_num = 1
 
 
 @admin.register(Course)

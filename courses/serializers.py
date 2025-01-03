@@ -53,16 +53,48 @@ class QuizGETSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "questions", )
 
 
-class ModuleRequiredSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Module
-        fields = ("id", "name", )
-
-
 class LessonGETLittleSerializer(serializers.ModelSerializer):
+    requires_context = True
+
+    is_open = serializers.SerializerMethodField("check_open")
+
+    def check_open(self, obj):
+        request = self.context.get("request")
+        print(request)
+        if request:
+            if (obj.has_previous()):
+                if request.user in obj.previous.finishers.all():
+                    return True
+                else:
+                    return False
+            else:
+                return True
+        return True
+
     class Meta:
         model = Lesson
-        fields = ("id", "name", "type", "duration", )
+        fields = ("id", "name", "type", "duration", "is_open", )
+
+
+class ModuleRequiredSerializer(serializers.ModelSerializer):
+    is_open = serializers.SerializerMethodField("is_open_func")
+    lessons = serializers.SerializerMethodField("get_lessons")
+
+    def get_lessons(self, obj):
+        return LessonGETLittleSerializer(obj.lessons(), many=True, context=self.context).data
+    
+
+    def is_open_func(self, obj):
+        request = self.context.get("request")
+        print(request)
+        if request:
+            if request.user in obj.students.all():
+                return True
+            return False
+        return False
+    class Meta:
+        model = Module
+        fields = ("id", "name", "is_open", "lessons", )
 
 
 class LessonGETSerializer(serializers.ModelSerializer):
@@ -163,7 +195,7 @@ class CourseGETSerializer(serializers.ModelSerializer):
 
     def modules_func(self, obj):
         modules_obj = Module.objects.filter(course=obj)
-        modules = ModuleRequiredSerializer(modules_obj, many=True)
+        modules = ModuleRequiredSerializer(modules_obj, many=True, context=self.context)
         return modules.data
     
     def percentage_func(self, obj):
@@ -175,6 +207,7 @@ class CourseGETSerializer(serializers.ModelSerializer):
         if obj.count_lessons() == 0:
             return 0
         return count * 100 / obj.count_lessons()
+
 
     class Meta:
         model = Course
