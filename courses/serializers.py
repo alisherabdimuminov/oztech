@@ -24,7 +24,7 @@ class SubjectSerializer(serializers.ModelSerializer):
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("first_name", "last_name", )
+        fields = ("first_name", "last_name", "image", )
 
 class AnswerGETSerializer(serializers.ModelSerializer):
     class Meta:
