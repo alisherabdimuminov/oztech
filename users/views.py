@@ -82,7 +82,7 @@ def signup(request: HttpRequest):
     })
 
 
-@decorators.api_view(http_method_names=["POST"])
+@decorators.api_view(http_method_names=["GET"])
 @decorators.permission_classes(permission_classes=[permissions.IsAuthenticated])
 @decorators.authentication_classes(authentication_classes=[authentication.TokenAuthentication])
 def profile(request: HttpRequest):
