@@ -113,6 +113,9 @@ class Module(models.Model):
     def count_lessons(self) -> int:
         return Lesson.objects.filter(module=self).count()
     
+    def count_quizzes(self) -> int:
+        return Lesson.objects.filter(module=self, type="quiz").count()
+    
     def lessons(self):
         return Lesson.objects.filter(module=self)
     
