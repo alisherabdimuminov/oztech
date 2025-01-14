@@ -173,7 +173,7 @@ def get_rates(request: HttpRequest):
 @decorators.authentication_classes(authentication_classes=[authentication.TokenAuthentication])
 def get_ratings(request: HttpRequest):
     course_id = request.data.get("course")
-    type = request.data.get("type") or "monthly"
+    type = request.data.get("type")
     course = Course.objects.get(pk=course_id)
     now = datetime.now()
     now_as_str = now.strftime("%Y-%m-%d")
