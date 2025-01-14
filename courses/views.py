@@ -133,7 +133,7 @@ def post_rate(request: HttpRequest):
     course_rating = CourseRating.objects.filter(user=request.user, course=course)
     if course_rating:
         course_rating = course_rating.first()
-        course_rating.score += score
+        course_rating.score += int(score)
         course_rating.save()
     else:
         course_rating = CourseRating.objects.create(user=request.user, course=course, score=score)
