@@ -113,8 +113,8 @@ def profile(request: HttpRequest):
 @decorators.api_view(http_method_names=["POST"])
 @decorators.permission_classes(permission_classes=[permissions.IsAuthenticated])
 @decorators.authentication_classes(authentication_classes=[authentication.TokenAuthentication])
-def edit_profile(request: HttpRequest, pk: int):
-    user_obj = User.objects.get(pk=pk)
+def edit_profile(request: HttpRequest):
+    user_obj = request.user
     user = UserSerializer(user_obj, data=request.data)
     if user.is_valid():
         user.save()
