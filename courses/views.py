@@ -188,7 +188,7 @@ def get_ratings(request: HttpRequest):
         ratings_obj = CourseRating.objects.filter(course=course, created__range=[one_week_ago_as_str, now_as_str])
     else:
         ratings_obj = CourseRating.objects.filter(course=course, created__day=now.day)
-    ratings = CourseRatingSerializer(ratings_obj, many=True)
+    ratings = CourseRatingSerializer(ratings_obj, many=True, context={ "request": request })
     return Response({
         "status": "success",
         "errors": {},
