@@ -168,6 +168,7 @@ class Lesson(models.Model):
 class Rating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    module = models.ForeignKey(Module, on_delete=models.CASCADE)
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     score = models.IntegerField()
     percent = models.IntegerField()
