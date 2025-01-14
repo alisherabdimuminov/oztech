@@ -119,7 +119,7 @@ def get_subjects(self):
 @decorators.api_view(http_method_names=["POST"])
 @decorators.permission_classes(permission_classes=[permissions.IsAuthenticated])
 @decorators.authentication_classes(authentication_classes=[authentication.TokenAuthentication])
-def get_rate(request: HttpRequest):
+def post_rate(request: HttpRequest):
     course_pk = request.data.get("course")
     module_pk = request.data.get("module")
     lesson_pk = request.data.get("lesson")
@@ -130,9 +130,13 @@ def get_rate(request: HttpRequest):
     module = Module.objects.get(pk=module_pk)
     lesson = Lesson.objects.get(pk=lesson_pk)
 
-    course_rating = CourseRating.objects.filter(user=request.user, course=course).first()
-    course_rating.score += score
-    course_rating.save()
+    course_rating = CourseRating.objects.filter(user=request.user, course=course)
+    if course_rating:
+        course_rating = course_rating.first()
+        course_rating.score += score
+        course_rating.save()
+    else:
+        course_rating = CourseRating.objects.create(user=request.user, course=course, score=score)
 
     rating = Rating.objects.create(
         user=request.user,

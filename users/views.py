@@ -5,9 +5,11 @@ from rest_framework import authentication
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
-from users.serializers import UserSerializer
+from courses.models import Rating
+from courses.serializers import RatingSerializer
 
 from .models import User
+from .serializers import UserSerializer
 
 
 @decorators.api_view(http_method_names=["POST"])
@@ -87,6 +89,8 @@ def signup(request: HttpRequest):
 @decorators.authentication_classes(authentication_classes=[authentication.TokenAuthentication])
 def profile(request: HttpRequest):
     user: User = request.user
+    rating_obj = Rating.objects.filter(user=user)
+    rating = RatingSerializer(rating_obj, many=True)
 
     image = user.image
     
@@ -105,7 +109,8 @@ def profile(request: HttpRequest):
             "middle_name": user.middle_name,
             "city": user.city,
             "town": user.town,
-            "image": image
+            "image": image,
+            "rating": rating.data,
         }
     })
 

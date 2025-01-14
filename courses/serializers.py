@@ -214,11 +214,31 @@ class CourseGETSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "user", "subject", "description", "image", "price", "percentage", "length", "count_modules", "count_lessons", "count_students", "count_quizzes", "modules", "is_open", "created", )
 
 
+class CourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ("id", "name", )
+
+
+class ModuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Module
+        fields = ("id", "name", )
+
+
+class LessonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lesson
+        fields = ("id", "name", )
+
+
 class RatingSerializer(serializers.ModelSerializer):
-    course = CourseGETSerializer(Course, many=False)
+    course = CourseSerializer(Course, many=False)
+    module = ModuleSerializer(Module, many=False)
+    lesson = LessonSerializer(Lesson, many=False)
     class Meta:
         model = Rating
-        fields = ("course", "module", "lesson", "score",)
+        fields = ("course", "module", "lesson", "score", "percent", )
 
 
 class CourseRatingSerializer(serializers.ModelSerializer):
