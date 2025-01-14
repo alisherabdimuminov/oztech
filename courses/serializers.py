@@ -243,7 +243,7 @@ class RatingSerializer(serializers.ModelSerializer):
 
 class CourseRatingSerializer(serializers.ModelSerializer):
     course = CourseGETSerializer(Course, many=False)
-    author = UserSerializer(User, many=False)
+    user = UserSerializer(User, many=False)
     class Meta:
         model = CourseRating
         fields = ("user", "course", "score", )
