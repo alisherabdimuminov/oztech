@@ -84,9 +84,11 @@ class ModuleRequiredSerializer(serializers.ModelSerializer):
         return LessonGETLittleSerializer(obj.lessons(), many=True, context=self.context).data
     
 
-    def is_open_func(self, obj):
+    def is_open_func(self, obj: Module):
         request = self.context.get("request")
-        print(request)
+        course = obj.course
+        if course.modules().first() == obj:
+            return True
         if request:
             if request.user in obj.students.all():
                 return True
@@ -131,6 +133,9 @@ class ModuleGETSerializer(serializers.ModelSerializer):
 
     def is_open_func(self, obj):
         request = self.context.get("request")
+        course = obj.course
+        if course.modules().first() == obj:
+            return True
         if request:
             if request.user in obj.students.all():
                 return True
