@@ -4,8 +4,9 @@ from rest_framework import permissions
 from rest_framework import authentication
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
+from django.db.models import Sum
 
-from courses.models import Rating
+from courses.models import Rating, Course, Lesson
 from courses.serializers import RatingSerializer
 
 from .models import User
@@ -91,6 +92,7 @@ def profile(request: HttpRequest):
     user: User = request.user
     rating_obj = Rating.objects.filter(user=user)
     rating = RatingSerializer(rating_obj, many=True)
+    lessons = Lesson.objects.filter(finishers=user).aggregate({ "duration": Sum("duration") })
 
     image = user.image
     
@@ -107,6 +109,7 @@ def profile(request: HttpRequest):
             "first_name": user.first_name,
             "last_name": user.last_name,
             "middle_name": user.middle_name,
+            "duration": lessons.get(""),
             "city": user.city,
             "town": user.town,
             "image": image,

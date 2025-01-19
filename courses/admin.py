@@ -12,8 +12,9 @@ from .models import (
 )
 
 
-class AnswerTabulrInline(uadmin.TabularInline):
+class AnswerTabulrInline(uadmin.StackedInline):
     model = Answer
+    extra = 0
 
 
 class LessonTabularInline(uadmin.StackedInline):
@@ -21,9 +22,9 @@ class LessonTabularInline(uadmin.StackedInline):
     extra = 0
 
 
-class ModuleTabularInline(uadmin.TabularInline):
+class ModuleTabularInline(uadmin.StackedInline):
     model = Module
-    # max_num = 1
+    extra = 0
 
 
 @admin.register(Course)
@@ -51,3 +52,8 @@ class SubjectModelAdmin(uadmin.ModelAdmin):
 @admin.register(Quiz)
 class QuizModelAdmin(uadmin.ModelAdmin):
     list_display = ["name", ]
+
+
+@admin.register(Lesson)
+class LessonModelAdmin(uadmin.ModelAdmin):
+    list_display = ["name", "type", ]

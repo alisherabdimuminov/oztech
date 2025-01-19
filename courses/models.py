@@ -164,6 +164,14 @@ class Lesson(models.Model):
     def end_lesson(self, user: User):
         self.finishers.add(user)
 
+    def save(self, *args, **kwargs):
+        previous_lesson: Lesson = self.previous
+        if previous_lesson:
+            previous_lesson.next = self
+            previous_lesson.save()
+            print("saved")
+        super(Lesson, self).save(*args, **kwargs)
+
 
 class Rating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
