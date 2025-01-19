@@ -63,9 +63,9 @@ class LessonModelAdmin(uadmin.ModelAdmin):
 
 @admin.register(Rating)
 class LessonModelAdmin(uadmin.ModelAdmin):
-    list_display = ["user", "lesson", "score", "percent", ]
+    list_display = ["user", "lesson", "score", "percent", "created", ]
 
 
 @admin.register(CourseRating)
 class LessonModelAdmin(uadmin.ModelAdmin):
-    list_display = ["user", "course", "score", ]
+    list_display = ["user", "course", "score", "created", ]
