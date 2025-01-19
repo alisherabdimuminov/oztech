@@ -187,6 +187,9 @@ def get_ratings(request: HttpRequest):
         one_week_ago_as_str = one_week_ago.strftime("%Y-%m-%d")
         ratings_obj = CourseRating.objects.filter(course=course, created__range=[one_week_ago_as_str, now_as_str]).order_by("-score")
     else:
+        print(course)
+        print(now)
+        print(now_as_str)
         ratings_obj = CourseRating.objects.filter(course=course, created__day=now.day).order_by("-score")
     print(ratings_obj)
     ratings = CourseRatingSerializer(ratings_obj, many=True, context={ "request": request })
