@@ -15,3 +15,11 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+    
+class Contact(models.Model):
+    name = models.CharField(max_length=1000)
+    phone = models.CharField(max_length=1000)
+    telegram = models.CharField(max_length=1000)
+
+    def __str__(self):
+        return self.name

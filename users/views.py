@@ -9,7 +9,7 @@ from django.db.models import Sum
 from courses.models import Rating, Course, Lesson
 from courses.serializers import RatingSerializer
 
-from .models import User
+from .models import User, Contact
 from .serializers import UserSerializer
 
 
@@ -138,5 +138,32 @@ def edit_profile(request: HttpRequest):
             "code": "400",
             "data": {
                 "error": "Majburiy maydonlarni to'ldiring"
+            }
+        })
+
+
+@decorators.api_view(http_method_names=["GET"])
+@decorators.permission_classes(permission_classes=[permissions.IsAuthenticated])
+@decorators.authentication_classes(authentication_classes=[authentication.TokenAuthentication])
+def contact(request: HttpRequest):
+    contact = Contact.objects.first()
+    if contact:
+        return Response({
+            "status": "success",
+            "code": "200",
+            "data": {
+                "name": contact.name,
+                "phone": contact.phone,
+                "telegram": contact.telegram,
+            }
+        })
+    else:
+        return Response({
+            "status": "success",
+            "code": "200",
+            "data": {
+                "name": "OzTech",
+                "phone": "",
+                "telegram": "",
             }
         })
