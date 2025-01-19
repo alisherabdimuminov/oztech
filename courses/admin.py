@@ -9,6 +9,8 @@ from .models import (
     Question,
     Quiz,
     Subject,
+    Rating,
+    CourseRating,
 )
 
 
@@ -57,3 +59,13 @@ class QuizModelAdmin(uadmin.ModelAdmin):
 @admin.register(Lesson)
 class LessonModelAdmin(uadmin.ModelAdmin):
     list_display = ["name", "type", ]
+
+
+@admin.register(Rating)
+class LessonModelAdmin(uadmin.ModelAdmin):
+    list_display = ["user", "lesson", "score", "percent", ]
+
+
+@admin.register(CourseRating)
+class LessonModelAdmin(uadmin.ModelAdmin):
+    list_display = ["user", "course", "score", ]
