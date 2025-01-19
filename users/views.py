@@ -110,7 +110,7 @@ def profile(request: HttpRequest):
             "first_name": user.first_name,
             "last_name": user.last_name,
             "middle_name": user.middle_name,
-            "duration": lessons.get(""),
+            "duration": lessons.get("duration"),
             "city": user.city,
             "town": user.town,
             "image": image,
