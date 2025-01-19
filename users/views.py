@@ -1,3 +1,4 @@
+from django.shortcuts import redirect, render
 from django.http import HttpRequest
 from rest_framework import decorators
 from rest_framework import permissions
@@ -167,3 +168,19 @@ def contact(request: HttpRequest):
                 "telegram": "",
             }
         })
+
+
+def index(request: HttpRequest):
+    if request.method == "POST":
+        course = Course.objects.get(pk=request.POST.get("course"))
+        user = User.objects.get(pk=request.POST.get("student"))
+        course.students.add(user)
+        course.save()
+        print(course.students)
+        print(user)
+    user = request.user
+    if user.is_anonymous:
+        return redirect("admin:login")
+    courses = Course.objects.all()
+    users = User.objects.all()
+    return render(request, "index.html", { "courses": courses, "users": users })

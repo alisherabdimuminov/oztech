@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OzTech</title>
+</head>
+<style>
+    body {
+        display: grid;
+        gap: 5px;
+    }
+    select {
+        padding: 5px;
+    }
+</style>
+<body>
+    <form method="post">
+        {% csrf_token %}
+        <select name="course" id="course">
+            {% for course in courses %}
+                <option value="{{ course.pk }}">{{ course.name }}</option>
+            {% endfor %}
+        </select> <br>
+        <select name="student" id="student">
+            {% for student in users %}
+                <option value="{{ student.pk }}">{{ student.first_name }} {{ student.last_name }}</option>
+            {% endfor %}
+        </select> <br>
+        <button type="submit">Qo'llash</button>
+    </form>
+</body>
+</html>
