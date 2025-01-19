@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 
-from .models import User
+from .models import User, Contact
 
 
 @admin.register(User)
@@ -22,3 +22,8 @@ class UserModelAdmin(UserAdmin, uadmin.ModelAdmin):
             "fields": ("username", "password1", "password2", "first_name", "last_name", "middle_name", "city", "town", )
         }), 
     )
+
+
+@admin.register(Contact)
+class ContactModelAdmin(uadmin.ModelAdmin):
+    list_display = ["name", "phone", "telegram"]
