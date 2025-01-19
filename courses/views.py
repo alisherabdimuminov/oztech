@@ -178,14 +178,14 @@ def get_ratings(request: HttpRequest):
     now = datetime.now()
     now_as_str = now.strftime("%Y-%m-%d")
     ratings_obj = CourseRating.objects.filter(course=course).order_by("-score")
-    # if type == "monthly":
-    #     one_month_ago = now - timedelta(days=30)
-    #     one_month_ago_as_str = one_month_ago.strftime("%Y-%m-%d")
-    #     ratings_obj = CourseRating.objects.filter(course=course, created__range=[one_month_ago_as_str, now_as_str]).order_by("-score")
-    # elif type == "weekly":
-    #     one_week_ago = now - timedelta(days=7)
-    #     one_week_ago_as_str = one_week_ago.strftime("%Y-%m-%d")
-    #     ratings_obj = CourseRating.objects.filter(course=course, created__range=[one_week_ago_as_str, now_as_str]).order_by("-score")
+    if type == "monthly":
+        one_month_ago = now - timedelta(days=30)
+        one_month_ago_as_str = one_month_ago.strftime("%Y-%m-%d")
+        ratings_obj = CourseRating.objects.filter(course=course, created__range=[one_month_ago_as_str, now_as_str]).order_by("-score")
+    elif type == "weekly":
+        one_week_ago = now - timedelta(days=7)
+        one_week_ago_as_str = one_week_ago.strftime("%Y-%m-%d")
+        ratings_obj = CourseRating.objects.filter(course=course, created__range=[one_week_ago_as_str, now_as_str]).order_by("-score")
     # else:
     #     print(course)
     #     print(now)
