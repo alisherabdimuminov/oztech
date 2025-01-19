@@ -93,6 +93,7 @@ def profile(request: HttpRequest):
     rating_obj = Rating.objects.filter(user=user)
     rating = RatingSerializer(rating_obj, many=True)
     lessons = Lesson.objects.filter(finishers=user).aggregate(**{ "duration": Sum("duration") })
+    print(lessons)
 
     image = user.image
     
