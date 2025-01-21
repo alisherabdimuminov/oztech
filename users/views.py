@@ -19,7 +19,7 @@ from .serializers import UserSerializer
 
 
 configuration = sib_api_v3_sdk.Configuration()
-configuration.api_key['api-key'] = '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'
+configuration.api_key['api-key'] = ''
 api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
 headers = {"Some-Custom-Name":"i-med-team-unique-id"}
 
