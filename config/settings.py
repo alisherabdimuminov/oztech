@@ -31,6 +31,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "django.middleware.locale.LocaleMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     # 'corsheaders.middleware.CorsMiddleware',
@@ -73,7 +74,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'uz-uz'
 
 TIME_ZONE = 'UTC'
 
@@ -104,3 +105,18 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # CORS_ALLOW_ALL_ORIGINS = True
 # CORS_ALLOW_CREDENTIALS = True
 # CSRF_TRUSTED_ORIGINS = ["https://oztech.uz", "http://localhost:8000"]
+
+LANGUAGE_CODE = "uz"
+
+USE_I18N = True
+
+LANGUAGES = (
+    ("uz", "Uzbek"),
+    ("en", "English"),
+)
+
+UNFOLD = {
+    "SHOW_LANGUAGES": True,
+}
+
+LOCALE_PATHS = (os.path.join(BASE_DIR, "locale"),)

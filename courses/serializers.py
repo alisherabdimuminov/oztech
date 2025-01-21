@@ -18,7 +18,7 @@ from .models import (
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
-        fields = ("id", "name", )
+        fields = ("id", "name", "image", "courses")
 
 
 class AuthorSerializer(serializers.ModelSerializer):

@@ -1,4 +1,7 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from users.models import User
 
@@ -17,53 +20,76 @@ QUESTION_TYPE = (
 
 
 class Question(models.Model):
-    question = models.TextField()
-    type = models.CharField(max_length=100, choices=QUESTION_TYPE)
-    created = models.DateTimeField(auto_now_add=True)
+    question = models.TextField(verbose_name="Savol matni")
+    type = models.CharField(max_length=100, choices=QUESTION_TYPE, verbose_name="Savol turi")
+    created = models.DateTimeField(auto_now_add=True,)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.question
     
+    class Meta:
+        verbose_name = "Savol"
+        verbose_name_plural = "Savollar"
+
+
 class Answer(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    value_1 = models.TextField(null=True, blank=True)
-    value_2 = models.TextField(null=True, blank=True)
-    is_correct = models.BooleanField(default=False)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, verbose_name="Savol")
+    value_1 = models.TextField(null=True, blank=True, verbose_name="Qiymat 1")
+    value_2 = models.TextField(null=True, blank=True, verbose_name="Qiymat 2")
+    is_correct = models.BooleanField(default=False, verbose_name="To'g'ri")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.value_1
     
+    class Meta:
+        verbose_name = "Javob"
+        verbose_name_plural = "Javoblar"
+
 
 class Quiz(models.Model):
-    name = models.CharField(max_length=100)
-    questions = models.ManyToManyField(Question, related_name="quiz_questions")
+    name = models.CharField(max_length=100, verbose_name="Nomi")
+    questions = models.ManyToManyField(Question, related_name="quiz_questions", verbose_name="Savollar")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        verbose_name = "Test"
+        verbose_name_plural = "Testlar"
     
 
 class Subject(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, verbose_name="Nomi")
+    image = models.ImageField(upload_to="images/subjects", verbose_name="Rasmi")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
     
+    def courses(self):
+        return Course.objects.filter(subject=self).count()
+    
+    class Meta:
+        verbose_name = "Fan"
+        verbose_name_plural = "Fanlar"
+    
 
 class Course(models.Model):
-    name = models.CharField(max_length=100)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    description = models.TextField()
-    image = models.ImageField(upload_to="images/courses")
-    price = models.IntegerField()
-    students = models.ManyToManyField(User, related_name="course_students", null=True, blank=True)
+    name = models.CharField(max_length=100, verbose_name="Nomi")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="O'qituvchi")
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, verbose_name="Fan")
+    description = models.TextField(verbose_name="Kurs haqida qisqacha")
+    image = models.ImageField(upload_to="images/courses", verbose_name="Rasmi")
+    price = models.IntegerField(verbose_name="Narxi")
+    students_month = models.ManyToManyField(User, related_name="course_students_month", null=True, blank=True)
+    students_year = models.ManyToManyField(User, related_name="course_students_year", null=True, blank=True)
+    
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -74,7 +100,7 @@ class Course(models.Model):
         return Module.objects.filter(course=self)
     
     def count_students(self):
-        return self.students.count()
+        return self.students_month.count() + self.students_year.count()
     
     def count_modules(self):
         return Module.objects.filter(course=self).count()
@@ -88,13 +114,17 @@ class Course(models.Model):
     def length(self):
         return Lesson.objects.filter(module__course=self).aggregate(models.Sum("duration")).get("duration__sum") or 0
 
+    class Meta:
+        verbose_name = "Kurs"
+        verbose_name_plural = "Kurslar"
+
 
 class Module(models.Model):
-    name = models.CharField(max_length=500)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    required = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True)
-    students = models.ManyToManyField(User, related_name="module_students", null=True, blank=True)
-    finishers = models.ManyToManyField(User, related_name="module_finishers", null=True, blank=True)
+    name = models.CharField(max_length=500, verbose_name='Nomi')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name="Kurs")
+    required = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Talab qilinadi")
+    students = models.ManyToManyField(User, related_name="module_students", null=True, blank=True, verbose_name="Talabalar")
+    finishers = models.ManyToManyField(User, related_name="module_finishers", null=True, blank=True, verbose_name="Bitirganlar")
 
     def __str__(self) -> str:
         return self.name
@@ -128,18 +158,22 @@ class Module(models.Model):
     def video_length(self) -> int:
         return Lesson.objects.filter(module=self).aggregate(duration=models.Sum("duration")).get("duration") or 0
 
+    class Meta:
+        verbose_name = "Modul"
+        verbose_name_plural = "Modullar"
+
 
 class Lesson(models.Model):
-    name = models.CharField(max_length=100)
-    module = models.ForeignKey(Module, on_delete=models.CASCADE)
-    type = models.CharField(max_length=100, choices=LESSON_TYPE)
-    quiz = models.ForeignKey(Quiz, on_delete=models.SET_NULL, null=True, blank=True)
-    duration = models.IntegerField(default=60)
-    video = models.URLField(null=True, blank=True)
-    resource = models.FileField(upload_to="files/lessons", null=True, blank=True)
-    previous = models.ForeignKey("self", related_name="previous_lesson", on_delete=models.SET_NULL, null=True, blank=True)
-    next = models.ForeignKey("self", related_name="next_lesson", on_delete=models.SET_NULL, null=True, blank=True)
-    finishers = models.ManyToManyField(User, related_name="lesson_finishers", null=True, blank=True)
+    name = models.CharField(max_length=100, verbose_name="Nomi")
+    module = models.ForeignKey(Module, on_delete=models.CASCADE, verbose_name="Modul")
+    type = models.CharField(max_length=100, choices=LESSON_TYPE, verbose_name="Turi")
+    quiz = models.ForeignKey(Quiz, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Test")
+    duration = models.IntegerField(default=60, verbose_name="Davomiyligi")
+    video = models.URLField(null=True, blank=True, verbose_name="Video link (YouTubue)")
+    resource = models.FileField(upload_to="files/lessons", null=True, blank=True, verbose_name="Manbaa")
+    previous = models.ForeignKey("self", related_name="previous_lesson", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Oldingi dars")
+    next = models.ForeignKey("self", related_name="next_lesson", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Keyingi dars")
+    finishers = models.ManyToManyField(User, related_name="lesson_finishers", null=True, blank=True, verbose_name="Tugatganlar")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -164,13 +198,9 @@ class Lesson(models.Model):
     def end_lesson(self, user: User):
         self.finishers.add(user)
 
-    def save(self, *args, **kwargs):
-        previous_lesson: Lesson = self.previous
-        if previous_lesson:
-            previous_lesson.next = self
-            previous_lesson.save()
-            print("saved")
-        super(Lesson, self).save(*args, **kwargs)
+    class Meta:
+        verbose_name = "Dars"
+        verbose_name_plural = "Darslar"
 
 
 class Rating(models.Model):
@@ -186,6 +216,7 @@ class Rating(models.Model):
     def __str__(self):
         return str(self.score)
 
+
 class CourseRating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
@@ -195,3 +226,10 @@ class CourseRating(models.Model):
 
     def __str__(self):
         return str(self.score)
+
+
+@receiver(post_save, sender=Lesson)
+def notify_model_saved(sender, instance: Lesson, created, **kwargs):
+    if instance.previous:
+        instance.previous.next = instance
+        instance.previous.save()

@@ -5,7 +5,7 @@ from rest_framework import permissions
 from rest_framework import authentication
 from rest_framework.response import Response
 
-from users.models import User
+from users.models import User, Date
 
 from .models import (
     Course,
@@ -47,6 +47,15 @@ def get_courses_list(request: HttpRequest):
 @decorators.authentication_classes(authentication_classes=[authentication.TokenAuthentication])
 def get_course(request: HttpRequest, pk: int):
     course_obj = Course.objects.get(pk=pk)
+    date = Date.objects.filter(user=request.user, course=course_obj)
+    if date:
+        date = date.first()
+        if datetime.now().date() == date.ended:
+            return Response({
+                "status": "error",
+                "code": "000",
+                "data": None
+            })
     course = CourseGETSerializer(course_obj, many=False, context={ "request": request })
     return Response({
         "status": "success",

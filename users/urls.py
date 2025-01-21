@@ -6,6 +6,9 @@ from .views import (
     edit_profile,
     profile,
     contact,
+    verify_code,
+    generate_code,
+    change_password,
 )
 
 urlpatterns = [
@@ -14,4 +17,7 @@ urlpatterns = [
     path("profile/", profile, name="profile"),
     path("profile/edit/", edit_profile, name="edit_profile"),
     path("contact/", contact, name="contact"),
+    path("verify/", verify_code, name="verify_code"),
+    path("generate/", generate_code),
+    path("change/password/", change_password),
 ]
