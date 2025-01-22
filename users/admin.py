@@ -11,7 +11,7 @@ from .models import User, Contact, VerificationCode
 class UserModelAdmin(UserAdmin, uadmin.ModelAdmin):
     add_form = UserCreationForm
     form = UserChangeForm
-    list_display = ["username", "first_name", "last_name", "middle_name", "city", "town", ]
+    list_display = ["username", "first_name", "last_name", "middle_name", "city", "town", "is_active", ]
     model = User
     fieldsets = (
         ("Foydalanuvchini tahrirlash", {
