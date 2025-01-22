@@ -302,7 +302,8 @@ text-decoration: none
     try:
         response = api_instance.send_transac_email(send_smtp_email)
         print(response)
-    except:
+    except Exception as e:
+        print(e)
         print("dont send")
 
     return Response({
