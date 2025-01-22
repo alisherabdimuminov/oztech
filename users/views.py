@@ -1,3 +1,4 @@
+import os
 import datetime
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
@@ -10,6 +11,7 @@ from rest_framework import authentication
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.db.models import Sum
+from dotenv import load_dotenv
 
 from courses.models import Rating, Course, Lesson
 from courses.serializers import RatingSerializer
@@ -17,9 +19,11 @@ from courses.serializers import RatingSerializer
 from .models import User, Contact, VerificationCode, Date
 from .serializers import UserSerializer
 
+load_dotenv()
+
 
 configuration = sib_api_v3_sdk.Configuration()
-configuration.api_key['api-key'] = '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'
+configuration.api_key['api-key'] = os.environ.get("API")
 
 api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
 headers = {"Some-Custom-Name":"i-med-team-unique-id"}
