@@ -296,7 +296,7 @@ text-decoration: none
 </td></tr><tr><td><div class="t34" style="mso-line-height-rule:exactly;mso-line-height-alt:70px;line-height:70px;font-size:1px;display:block;">&nbsp;&nbsp;</div></td></tr></table></td></tr></table></div><div class="gmail-fix" style="display: none; white-space: nowrap; font: 15px courier; line-height: 0;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</div></body>
 </html>
 """
-    sender = { "name": "IMedTeam", "email": "alisher.abdimuminov.2005@gmail.com" }
+    sender = { "name": "IMedTeam", "email": "imedteam1@gmail.com" }
     to = [ { "name": "StudentX", "email": user.username } ]
     send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(to=to, headers=headers, html_content=html_content, sender=sender, subject="Emailingizni tasdiqlang")
 
