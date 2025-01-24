@@ -90,7 +90,7 @@ class ModuleRequiredSerializer(serializers.ModelSerializer):
         if course.modules().first() == obj:
             return True
         if request:
-            if request.user in obj.students.all():
+            if request.user in obj.all():
                 return True
             return False
         return False
@@ -157,10 +157,12 @@ class CoursesGETSerializer(serializers.ModelSerializer):
     subject = SubjectSerializer(Subject, many=False)
     created = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
 
-    def is_open_func(self, obj):
+    def is_open_func(self, obj: Course):
         request = self.context.get("request")
         if request:
-            if request.user in obj.students.all():
+            if request.user in obj.students_month.all():
+                return True
+            elif request.user in obj.students_year.all():
                 return True
             return False
         return False
@@ -193,7 +195,9 @@ class CourseGETSerializer(serializers.ModelSerializer):
     def is_open_func(self, obj):
         request = self.context.get("request")
         if request:
-            if request.user in obj.students.all():
+            if request.user in obj.students_month.all():
+                return True
+            elif request.user in obj.students_year.all():
                 return True
             return False
         return False
