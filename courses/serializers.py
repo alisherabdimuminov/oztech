@@ -90,7 +90,7 @@ class ModuleRequiredSerializer(serializers.ModelSerializer):
         if course.modules().first() == obj:
             return True
         if request:
-            if request.user in obj.all():
+            if request.user in obj.students.all():
                 return True
             return False
         return False
