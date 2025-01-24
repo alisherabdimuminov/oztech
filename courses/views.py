@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+
+from django.db.models import Q
 from django.http import HttpRequest
 from rest_framework import decorators
 from rest_framework import permissions
@@ -69,7 +71,7 @@ def get_course(request: HttpRequest, pk: int):
 @decorators.authentication_classes(authentication_classes=[authentication.TokenAuthentication])
 def my_courses(request: HttpRequest):
     user = request.user
-    courses_obj = Course.objects.filter(students=user)
+    courses_obj = Course.objects.filter(Q(students_month=user) | Q(students_year=user))
     courses = CoursesGETSerializer(courses_obj, many=True, context={ "request": request })
     print(courses_obj)
     return Response({
