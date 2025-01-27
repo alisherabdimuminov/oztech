@@ -93,8 +93,7 @@ class Course(models.Model):
     description = models.TextField(verbose_name="Kurs haqida qisqacha")
     image = models.ImageField(upload_to="images/courses", verbose_name="Rasmi")
     price = models.IntegerField(verbose_name="Narxi")
-    students_month = models.ManyToManyField(User, related_name="course_students_month", null=True, blank=True)
-    students_year = models.ManyToManyField(User, related_name="course_students_year", null=True, blank=True)
+    students = models.ManyToManyField(User, related_name="course_students", null=True, blank=True)
     
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -106,7 +105,7 @@ class Course(models.Model):
         return Module.objects.filter(course=self)
     
     def count_students(self):
-        return self.students_month.count() + self.students_year.count()
+        return self.students.count()
     
     def count_modules(self):
         return Module.objects.filter(course=self).count()

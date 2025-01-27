@@ -71,7 +71,7 @@ def get_course(request: HttpRequest, pk: int):
 @decorators.authentication_classes(authentication_classes=[authentication.TokenAuthentication])
 def my_courses(request: HttpRequest):
     user = request.user
-    courses_obj = Course.objects.filter(Q(students_month=user) | Q(students_year=user))
+    courses_obj = Course.objects.filter(students=user)
     courses = CoursesGETSerializer(courses_obj, many=True, context={ "request": request })
     print(courses_obj)
     return Response({
