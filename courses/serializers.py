@@ -158,6 +158,15 @@ class CoursesGETSerializer(serializers.ModelSerializer):
     user = AuthorSerializer(User, many=False)
     subject = SubjectSerializer(Subject, many=False)
     created = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
+    rest = serializers.SerializerMethodField("rest_func")
+
+    def rest_func(self, obj):
+        request = self.context.get("request")
+        permission = Permission.objects.filter(user=request.user, course=obj)
+        if permission:
+            permission = permission.first()
+            return permission.ended
+        return None
 
     def is_open_func(self, obj: Course):
         request = self.context.get("request")
@@ -186,7 +195,7 @@ class CoursesGETSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ("id", "name", "user", "subject", "description", "image", "price", "percentage", "length", "count_modules", "count_lessons", "count_students", "is_open", "created", )
+        fields = ("id", "name", "user", "subject", "description", "image", "price", "percentage", "length", "count_modules", "count_lessons", "count_students", "is_open", "rest", "created", )
 
 
 class CourseGETSerializer(serializers.ModelSerializer):
