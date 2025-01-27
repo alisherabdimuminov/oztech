@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from datetime import date, timedelta
 
 from users.models import User
 
@@ -16,6 +17,11 @@ QUESTION_TYPE = (
     ("many_select", "Ko'p javob tanlash"),
     ("writable", "Yoziladigan"),
     ("matchable", "Mos keladigan"),
+)
+
+PERMISSION_TYPE = (
+    ("monthly", "6 oylik"),
+    ("yearly", "1 yillik"),
 )
 
 
@@ -226,6 +232,24 @@ class CourseRating(models.Model):
 
     def __str__(self):
         return str(self.score)
+    
+
+class Permission(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    type = models.CharField(max_length=1000, choices=PERMISSION_TYPE)
+    created = models.DateField(auto_now_add=True)
+    ended = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return self.type
+    
+    def save(self, *args, **kwargs):
+        if self.type == "monthly":
+            self.ended = date.today() + timedelta(days=182)
+        else:
+            self.ended = date.today() + timedelta(days=365)
+        super(Permission, self).save(*args, **kwargs)
 
 
 @receiver(post_save, sender=Lesson)

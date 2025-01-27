@@ -1,3 +1,4 @@
+from datetime import date
 from rest_framework import serializers
 
 from users.models import User
@@ -12,6 +13,7 @@ from .models import (
     Quiz,
     Rating,
     Subject,
+    Permission,
 )
 
 
@@ -160,9 +162,12 @@ class CoursesGETSerializer(serializers.ModelSerializer):
     def is_open_func(self, obj: Course):
         request = self.context.get("request")
         if request:
-            if request.user in obj.students_month.all():
-                return True
-            elif request.user in obj.students_year.all():
+            permission = Permission.objects.filter(user=request.user, course=obj)
+            if permission:
+                permission = permission.first()
+                now = date.today()
+                if now == permission.ended:
+                    permission.delete()
                 return True
             return False
         return False
@@ -192,12 +197,15 @@ class CourseGETSerializer(serializers.ModelSerializer):
     created = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
     modules = serializers.SerializerMethodField("modules_func")
 
-    def is_open_func(self, obj):
+    def is_open_func(self, obj: Course):
         request = self.context.get("request")
         if request:
-            if request.user in obj.students_month.all():
-                return True
-            elif request.user in obj.students_year.all():
+            permission = Permission.objects.filter(user=request.user, course=obj)
+            if permission:
+                permission = permission.first()
+                now = date.today()
+                if now == permission.ended:
+                    permission.delete()
                 return True
             return False
         return False

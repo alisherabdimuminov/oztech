@@ -11,6 +11,7 @@ from .models import (
     Subject,
     Rating,
     CourseRating,
+    Permission,
 )
 
 
@@ -61,11 +62,6 @@ class LessonModelAdmin(uadmin.ModelAdmin):
     list_display = ["name", "type", ]
 
 
-# @admin.register(Rating)
-# class LessonModelAdmin(uadmin.ModelAdmin):
-#     list_display = ["user", "lesson", "score", "percent", "created", ]
-
-
-# @admin.register(CourseRating)
-# class LessonModelAdmin(uadmin.ModelAdmin):
-#     list_display = ["user", "course", "score", "created", ]
+@admin.register(Permission)
+class PermissionModelAdmin(uadmin.ModelAdmin):
+    list_display = ["user", "course", "type", "ended"]
